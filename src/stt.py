@@ -27,6 +27,7 @@ def init_mic():
         if device_info.get('maxInputChannels') > 0 and 'default' in str(device_info.get('name')).lower():
             default_device_index = i
             # print(f"Input Device ID: {i} - Name: {device_info.get('name')}")
+
     global device_index 
     if default_device_index is None:
         print("Please select one of these audio devices:")
