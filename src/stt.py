@@ -16,21 +16,27 @@ WAVE_OUTPUT_FILENAME = "output.wav"
 
 device_index = 0
 
-def _print_available_devices():
+def init_mic():
     p = pyaudio.PyAudio()
-    print("Available Input Devices:")
     default_api_index = p.get_default_host_api_info()["index"]
     info = p.get_host_api_info_by_index(default_api_index)
     numdevices = int(info.get('deviceCount'))
+    default_device_index = None
     for i in range(numdevices):
         device_info = p.get_device_info_by_host_api_device_index(default_api_index, i)
-        if device_info.get('maxInputChannels') > 0:
-            print(f"Input Device ID: {i} - Name: {device_info.get('name')}")
-
-def init_mic():
-    _print_available_devices()
+        if device_info.get('maxInputChannels') > 0 and 'default' in str(device_info.get('name')).lower():
+            default_device_index = i
+            # print(f"Input Device ID: {i} - Name: {device_info.get('name')}")
     global device_index 
-    device_index = int(input("Which device id to use >"))
+    if default_device_index is None:
+        print("Please select one of these audio devices:")
+        for i in range(numdevices):
+            device_info = p.get_device_info_by_host_api_device_index(default_api_index, i)
+            if device_info.get('maxInputChannels') > 0 and device_info.get('name').lower() == 'default':
+                print(f"Input Device ID: {i} - Name: {device_info.get('name')}")
+        device_index = int(input("Which device id to use >"))
+    else:
+        device_index = default_device_index
 
 def stt_from_mic(record_seconds=5, file_path=WAVE_OUTPUT_FILENAME) -> str:
     p = pyaudio.PyAudio()
