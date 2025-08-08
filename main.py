@@ -1,6 +1,4 @@
 from src.tts import tts 
-from src.stt import stt
+from src.stt import stt_from_mic
 
-filepath = "output.wav"
-tts('Hello, welcome to amazon alexa clone.       ', delete_file=False, file_path=filepath)
-print(stt(filepath))
+tts(stt_from_mic())
