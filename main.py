@@ -1,3 +1,4 @@
+import json
 from src.ai import get_openai_response
 from src.tts import tts 
 from src.stt import await_speech_command, stt_from_mic, init_mic
@@ -6,6 +7,7 @@ def callback():
     tts("What's up?")
     prompt = stt_from_mic(10)
     response = get_openai_response(prompt)
+    print(json.dumps({"prompt": prompt, "response": response}, indent=2))
     tts(response)
     exit(0)
 

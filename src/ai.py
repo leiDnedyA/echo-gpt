@@ -15,7 +15,6 @@ def get_openai_response(prompt: str, model="gpt-4o-mini") -> str:
         {"role": "user", "content": prompt}
       ]
     )
-    print(completion.choices[0].message.content)
     return str(completion.choices[0].message.content)
 
 if __name__ == '__main__':
