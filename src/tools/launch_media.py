@@ -1,16 +1,11 @@
-from requests.api import options
 from selenium import webdriver
 import time
-import os
 import requests
 import urllib
 
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 
 chrome_options = Options()
@@ -32,24 +27,19 @@ def _close_junk_windows(driver):
 
 
 def _open_page(url: str):
-    service = Service(executable_path='/usr/bin/google-chrome')
     driver = webdriver.Chrome(options=chrome_options)
-    try:
-        driver.get(url)
-        time.sleep(5)
+    driver.get(url)
+    time.sleep(5)
 
-        mute_toggle = driver.find_element(By.CSS_SELECTOR, ".mui-dhecnw")
-        actions = ActionChains(driver)
-        actions.click(mute_toggle).perform()
-        driver.execute_script("document.querySelector('.mui-dhecnw').click();")
+    mute_toggle = driver.find_element(By.CSS_SELECTOR, ".mui-dhecnw")
+    actions = ActionChains(driver)
+    actions.click(mute_toggle).perform()
+    driver.execute_script("document.querySelector('.mui-dhecnw').click();")
 
-        _close_junk_windows(driver)
+    _close_junk_windows(driver)
 
-        body = driver.find_element(By.TAG_NAME, 'body')
-        body.send_keys('f')
-    finally:
-        # driver.quit()
-        pass
+    body = driver.find_element(By.TAG_NAME, 'body')
+    body.send_keys('f')
 
 def launch_show(name: str):
     query = urllib.parse.quote_plus(name)
@@ -57,7 +47,6 @@ def launch_show(name: str):
     response = requests.get(api_url)
     show_id = str(response.json()['results'][1]['id'])
     _open_page(f'https://vidfast.pro/tv/{show_id}/1/1?autoPlay=true&autoNext=true')
-    # _open_page('https://bingeflix.tv/tv/' + show_id)
 
 if __name__ == '__main__':
     launch_show('shark tank')
