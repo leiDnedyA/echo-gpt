@@ -1,4 +1,4 @@
-from src.openai import get_openai_response
+from src.ai import get_openai_response
 from src.tts import tts 
 from src.stt import await_speech_command, stt_from_mic, init_mic
 

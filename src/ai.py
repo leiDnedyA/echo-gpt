@@ -1,5 +1,10 @@
 from openai import OpenAI
 
+import os
+import dotenv
+
+dotenv.load_dotenv()
+
 client = OpenAI()
 
 def get_openai_response(prompt: str, model="gpt-4o-mini") -> str:
@@ -12,3 +17,6 @@ def get_openai_response(prompt: str, model="gpt-4o-mini") -> str:
     )
     print(completion.choices[0].message.content)
     return str(completion.choices[0].message.content)
+
+if __name__ == '__main__':
+    print(get_openai_response("What's your favorite color?"))
