@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 import dotenv
 
-from log import log_dict
+from .log import log_dict
 
 dotenv.load_dotenv()
 
@@ -36,6 +36,7 @@ def get_openai_response_with_tools(prompt: str, tools, tool_functions, system_pr
         if item.type == "function_call":
             name = item.name
             function_call_arguments = json.loads(item.arguments)
+            print(function_call_arguments)
             if not name in tool_functions:
                 print("Warning: function of name " + name + " not provided, but LLM tried to call it.")
                 continue
@@ -43,7 +44,7 @@ def get_openai_response_with_tools(prompt: str, tools, tool_functions, system_pr
             call_results.append({
                 "type": "function_call_output",
                 "call_id": item.call_id,
-                "output": json.dumps(func(function_call_arguments))
+                "output": json.dumps(func(**function_call_arguments))
             })
             log_dict({ "event": "tool call", "function_call": item.name, "arguments": function_call_arguments })
     response = client.responses.create(

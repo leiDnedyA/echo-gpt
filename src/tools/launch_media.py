@@ -58,10 +58,9 @@ def ai_pick_result_id(options):
     The search results are provided as a JSON list.
     Return the ID of the most relevant search result in a JSON object."""
     prompt = f"""User query: {json.dumps(options)}. Respond only with the ID of the most popular media entity,
-    with no punctuation / quotation marks."""
+    with no punctuation / quotation marks. Do not respond with a JSON format, the response must be parseable by the python `int()` function."""
     id = int(get_openai_response(prompt, system_prompt=system_prompt))
     return id
-
 
 def launch_show_by_name(name: str):
     query = urllib.parse.quote_plus(name)
@@ -69,7 +68,32 @@ def launch_show_by_name(name: str):
     response = requests.get(api_url)
     results = response.json()['results']
     show_id = ai_pick_result_id(results)
-    _open_page(f'https://vidfast.pro/tv/{show_id}/1/1?autoPlay=true&autoNext=true')
+    try:
+        _open_page(f'https://vidfast.pro/tv/{show_id}/1/1?autoPlay=true&autoNext=true')
+        return True
+    except Exception as e:
+        print(e)
+        return False
+
+tools = [{
+    "type": "function",
+    "name": "launch_show_by_name",
+    "description": "Launch a show based on the given name",
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "name": {
+                "type": "string",
+                "description": "The name of the show to be launched, such as 'Adventure Time', or 'Shark Tank'.",
+            },
+        },
+        "required": ["name"],
+    },
+}]
+
+tool_functions = {
+    "launch_show_by_name": launch_show_by_name
+}
 
 if __name__ == '__main__':
     # launch_show('shark tank')
