@@ -9,16 +9,23 @@ from src.tools.launch_media import tool_functions as launch_media_tool_functions
 def init_cli():
     tools = launch_media_tools
     tool_functions = launch_media_tool_functions
+    messages = []
     def callback():
-        print("What's up?")
         prompt = input("> ")
+        if prompt == "exit":
+            print("Goodbye :/")
+            exit(0)
         response = get_openai_response_with_tools(
             prompt,
             tools=tools,
-            tool_functions=tool_functions
+            tool_functions=tool_functions,
+            previous_messages=messages
         )
+        messages.append({"role": "user", "content": prompt})
+        messages.append({"role": "assistant", "content": response})
         log_dict({"prompt": prompt, "response": response})
-        print("> " + response)
+        print("----------\n" + response)
+    print("What's up?")
     while True:
         callback()
 

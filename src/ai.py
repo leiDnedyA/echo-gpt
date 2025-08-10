@@ -22,13 +22,16 @@ def get_openai_response(prompt: str, model="gpt-4o-mini", system_prompt=None) ->
     return str(completion.choices[0].message.content)
 
 
-def get_openai_response_with_tools(prompt: str, tools, tool_functions, system_prompt=None):
-    response = client.responses.create(
-      model="gpt-4o-mini",
-      input=[
+def get_openai_response_with_tools(prompt: str, tools, tool_functions, system_prompt=None, previous_messages=None):
+    input = [
             {"role": "system", "content": system_prompt if system_prompt else "You are a helpful assistant, with the name \"robot\"."},
             {"role": "user", "content": prompt}
-        ],
+        ]
+    if previous_messages:
+        input = previous_messages + input
+    response = client.responses.create(
+      model="gpt-4o-mini",
+      input=input,
     tools=tools
     )
     call_results = []
