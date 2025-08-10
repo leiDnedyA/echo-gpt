@@ -1,4 +1,5 @@
 import argparse
+import socket
 from flask import Flask, request, redirect, url_for, render_template_string
 from src.ai import get_openai_response, get_openai_response_with_tools
 from src.tts import tts 
@@ -115,7 +116,50 @@ def init_web(host: str = "0.0.0.0", port: int = 5000):
             log_dict({"prompt": prompt, "response": response, "mode": "web"})
         return redirect(url_for("index"))
 
-    print(f"Starting web UI on http://{host}:{port}")
+    def _get_lan_ip() -> str:
+        try:
+            # Use a UDP connection to a public IP to determine the outbound interface IP
+            with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+                s.connect(("8.8.8.8", 80))
+                return s.getsockname()[0]
+        except Exception:
+            return "127.0.0.1"
+
+    def _print_qr_terminal(data: str) -> None:
+        try:
+            import qrcode  # type: ignore
+            from qrcode import constants  # type: ignore
+        except Exception:
+            print("[hint] Install 'qrcode' to see a terminal QR: pip install qrcode")
+            return
+
+        qr = qrcode.QRCode(
+            border=1,
+            error_correction=constants.ERROR_CORRECT_L,
+        )
+        qr.add_data(data)
+        qr.make(fit=True)
+        matrix = qr.get_matrix()
+
+        dark = "██"
+        light = "  "
+
+        print()  # top padding
+        # left/right quiet zone padding of 2 light modules for readability
+        side_pad = light * 2
+        for row in matrix:
+            line = ''.join(dark if cell else light for cell in row)
+            print(side_pad + line + side_pad)
+        print()  # bottom padding
+
+    lan_ip = _get_lan_ip()
+    lan_url = f"http://{lan_ip}:{port}"
+    bind_url = f"http://{host}:{port}"
+
+    print(f"Starting web UI on {bind_url}")
+    print(f"Open from your LAN: {lan_url}")
+    print("Scan this QR to open on a phone/tablet on the same network:")
+    _print_qr_terminal(lan_url)
     app.run(host=host, port=port, debug=False)
 
 if __name__ == '__main__':
