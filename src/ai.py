@@ -36,17 +36,14 @@ def get_openai_response_with_tools(prompt: str, tools, tool_functions, system_pr
         if item.type == "function_call":
             name = item.name
             function_call_arguments = json.loads(item.arguments)
-            func = next(filter(
-                lambda tool: tool["name"] == name,
-                tool_functions
-            ), None)
-            if not func:
+            if not name in tool_functions:
                 print("Warning: function of name " + name + " not provided, but LLM tried to call it.")
                 continue
+            func = tool_functions[name]
             call_results.append({
                 "type": "function_call_output",
                 "call_id": item.call_id,
-                "output": json.dumps(func["function"](function_call_arguments))
+                "output": json.dumps(func(function_call_arguments))
             })
             log_dict({ "event": "tool call", "function_call": item.name, "arguments": function_call_arguments })
     response = client.responses.create(
@@ -88,5 +85,5 @@ if __name__ == '__main__':
             },
         },
     ]
-    tool_functions = [{"name": "get_weather", "function": get_weather}]
+    tool_functions = {"get_weather": get_weather}
     get_openai_response_with_tools("What's the weather like in Chicago, New York, and Beijing?", tools=tools, tool_functions=tool_functions)
