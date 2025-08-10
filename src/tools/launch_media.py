@@ -63,7 +63,7 @@ def ai_pick_result_id(options):
     return id
 
 
-def launch_show(name: str):
+def launch_show_by_name(name: str):
     query = urllib.parse.quote_plus(name)
     api_url = f'https://api.themoviedb.org/3/search/tv?api_key=68e094699525b18a70bab2f86b1fa706&include_adult=false&query={query}'
     response = requests.get(api_url)
@@ -73,4 +73,4 @@ def launch_show(name: str):
 
 if __name__ == '__main__':
     # launch_show('shark tank')
-    launch_show('gumball')
+    launch_show_by_name('gumball')
