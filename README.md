@@ -10,7 +10,9 @@ My personal use case for this is using the web client to launch shows
 on my laptop from my phone, while the laptop is plugged into my TV via HDMI.
 
 ## Tools Roadmap
-- [ ] Launch a show
+- [x] Launch a show based on name and season
+- [ ] Close current show
+- [ ] Pause current show
 - [ ] Track which episodes of a show you've watched in sqlite and launch the 
       next episode by default
 - [ ] Be able to go to the next or previous episode when a show is already open

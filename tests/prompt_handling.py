@@ -5,7 +5,7 @@ from src.tools.launch_media import tool_functions as launch_media_tool_functions
 
 
 def launch_show_from_prompt():
-    prompt = "Please put on Regular Show for me."
+    prompt = "Please launch the amazing world of gumball season 2 episode 3."
     response = get_openai_response_with_tools(
         prompt=prompt,
         tools=launch_media_tools,

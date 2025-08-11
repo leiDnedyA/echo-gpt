@@ -62,14 +62,24 @@ def ai_pick_result_id(options):
     id = int(get_openai_response(prompt, system_prompt=system_prompt))
     return id
 
-def launch_show_by_name(name: str):
+def launch_show_by_name(name: str, season_number=None, episode_number=None):
     query = urllib.parse.quote_plus(name)
     api_url = f'https://api.themoviedb.org/3/search/tv?api_key=68e094699525b18a70bab2f86b1fa706&include_adult=false&query={query}'
     response = requests.get(api_url)
     results = response.json()['results']
     show_id = ai_pick_result_id(results)
+    url = f'https://vidfast.pro/tv/{show_id}'
+    if season_number is not None and not episode_number is not None:
+        url += f'/{season_number}/1'
+    elif episode_number is not None and season_number is None:
+        url += f'/1/{episode_number}'
+    elif season_number is not None and episode_number is not None:
+        url += f'/{season_number}/{episode_number}'
+    else:
+        url += '/1/1'
+    url += '?autoPlay=true&autoNext=true'
     try:
-        _open_page(f'https://vidfast.pro/tv/{show_id}/1/1?autoPlay=true&autoNext=true')
+        _open_page(url)
         return True
     except Exception as e:
         print(e)
@@ -78,13 +88,21 @@ def launch_show_by_name(name: str):
 tools = [{
     "type": "function",
     "name": "launch_show_by_name",
-    "description": "Launch a show based on the given name",
+    "description": "Launch a show based on the given name, and optionally season + episode number.",
     "parameters": {
         "type": "object",
         "properties": {
             "name": {
                 "type": "string",
                 "description": "The name of the show to be launched, such as 'Adventure Time', or 'Shark Tank'.",
+            },
+            "season_number": {
+                "type": "integer",
+                "description": "The season number of the episode to be launched. If not specified, season one will be opened.",
+            },
+            "episode_number": {
+                "type": "integer",
+                "description": "The number of the episode to be launched. If not specified, episode one will be opened.",
             },
         },
         "required": ["name"],
@@ -97,4 +115,4 @@ tool_functions = {
 
 if __name__ == '__main__':
     # launch_show('shark tank')
-    launch_show_by_name('gumball')
+    launch_show_by_name('gumball', 2, 2)
