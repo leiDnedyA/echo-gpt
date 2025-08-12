@@ -51,6 +51,10 @@ def _open_page(url: str):
     body = driver.find_element(By.TAG_NAME, 'body')
     body.send_keys('f')
 
+    time.sleep(.3)
+    driver.execute_script("Array.from(document.querySelectorAll('.mui-0')).find(e => e.innerText === 'English').click();")
+
+
 def ai_pick_result_id(options):
     system_prompt = """You are an expert search result classifier.
     Your task is to review a user's query and a list of search results.
