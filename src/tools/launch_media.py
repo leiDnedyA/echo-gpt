@@ -1,4 +1,8 @@
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
+
 import json
 import time
 import requests
@@ -35,25 +39,47 @@ def _close_junk_windows(driver):
     except:
             pass
 
-
 def _open_page(url: str):
     driver = webdriver.Chrome(options=chrome_options)
     driver.get(url)
-    time.sleep(5)
 
-    mute_toggle = driver.find_element(By.CSS_SELECTOR, ".mui-dhecnw")
     actions = ActionChains(driver)
-    actions.click(mute_toggle).perform()
-    driver.execute_script("document.querySelector('.mui-dhecnw').click();")
+    actions.move_by_offset(2, 2).click().perform()
+    actions.move_by_offset(-2, -2).perform()
 
     _close_junk_windows(driver)
 
-    body = driver.find_element(By.TAG_NAME, 'body')
-    body.send_keys('f')
+    driver.execute_script("""
+    (function() {
+        function playVideo(video) {
+            if (video && video.paused) {
+                video.play().catch(err => {
+                    console.log("Autoplay failed:", err);
+                });
+            }
+        }
 
-    time.sleep(.3)
-    driver.execute_script("Array.from(document.querySelectorAll('.mui-0')).find(e => e.innerText === 'English').click();")
+        // Play all current videos
+        document.querySelectorAll('video').forEach(v => playVideo(v));
 
+        // Watch for new videos
+        const observer = new MutationObserver(mutations => {
+            for (const mutation of mutations) {
+                mutation.addedNodes.forEach(node => {
+                    if (node.tagName === 'VIDEO') {
+                        playVideo(node);
+                    }
+                    // If a container has videos inside
+                    if (node.querySelectorAll) {
+                        node.querySelectorAll('video').forEach(v => playVideo(v));
+                    }
+                });
+            }
+        });
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    })();
+    """)
 
 def ai_pick_result_id(options):
     system_prompt = """You are an expert search result classifier.
@@ -72,7 +98,7 @@ def launch_show_by_name(name: str, season_number=None, episode_number=None):
     response = requests.get(api_url)
     results = response.json()['results']
     show_id = ai_pick_result_id(results)
-    url = f'https://vidfast.pro/tv/{show_id}'
+    url = f'https://flixer.su/watch/tv/{show_id}'
     if season_number is not None and not episode_number is not None:
         url += f'/{season_number}/1'
     elif episode_number is not None and season_number is None:
